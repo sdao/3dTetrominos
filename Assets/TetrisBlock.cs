@@ -57,7 +57,7 @@ public class TetrisBlock {
 
     for (int i = 0; i <= 5; i++) {
       if (currentPositionAnimation != token) {
-        return false;
+        yield break;
       }
 
       obj.transform.position = Vector3.Lerp(oldPos, newPos, i / 5f);
@@ -76,7 +76,7 @@ public class TetrisBlock {
 
     for (int i = 0; i <= 10; i++) {
       if (currentScaleAnimation != token) {
-        return false;
+        yield break;
       }
 
       obj.transform.localScale = Vector3.Lerp(oldScale, newScale, i / 10f);
@@ -95,7 +95,7 @@ public class TetrisBlock {
 
     for (int i = 0; i <= 10; i++) {
       if (currentScaleAnimation != token) {
-        return false;
+        yield break;
       }
 
       obj.transform.localScale = Vector3.Lerp(oldScale, newScale, i / 10f);
@@ -105,5 +105,9 @@ public class TetrisBlock {
     currentScaleAnimation = null;
 
     MonoBehaviour.Destroy(obj);
+  }
+
+  public override string ToString() {
+    return "Block@" + gridPosition.ToString();
   }
 }

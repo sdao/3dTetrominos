@@ -20,4 +20,8 @@ public struct IntVector3 {
   public static IntVector3 operator -(IntVector3 rhs) {
     return new IntVector3(-rhs.x, -rhs.y, -rhs.z);
   }
+
+  public override string ToString() {
+    return "{x: " + x + ", y: " + y + ", z: " + z + "}";
+  }
 }

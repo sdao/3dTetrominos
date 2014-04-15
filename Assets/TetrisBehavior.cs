@@ -47,20 +47,29 @@ public class TetrisBehavior : MonoBehaviour {
       } else if (Input.GetKeyDown(KeyCode.Semicolon)) {
         NudgePieceBackward();
       } else if (Input.GetKeyDown(KeyCode.Space)) {
-        while (activeBlocks.Count > 0) {
-          AttemptPushPiece();
+        while (activeBlocks.Count > 0 && !gameOver) {
+          gameOver = !AttemptPushPiece();
+
+          if (gameOver) {
+            Debug.Log("The game is over."); // User-initiated game over.
+          }
         }
       }
     }
 
     if (Time.time - lastTime > 1f) {
-      // TODO: Check if a level can be destroyed.
-
-      // If not, insert a new piece.
-      if (activeBlocks.Count == 0) {
+      if (ClearLevel()) {
+        // Check if a level can be destroyed.
+        // Do nothing in that case.
+      } else if (activeBlocks.Count == 0) {
+        // If not, insert a new piece.
         NewPiece();
       } else {
         gameOver = !AttemptPushPiece();
+
+        if (gameOver) {
+          Debug.Log("The game is over."); // Forced game over.
+        }
       }
 
       lastTime = Time.time;
@@ -226,5 +235,77 @@ public class TetrisBehavior : MonoBehaviour {
 
   bool NudgePieceBackward() {
     return NudgePiece(-FindForwardDirection());
+  }
+
+  bool ClearLevel() {
+    bool didClear = false;
+
+    for (int i = 0; i < WIDTH; i++) {
+      for (int j = 0; j < HEIGHT + HEIGHT_EXTRA; j++) {
+        bool filled = true;
+        for (int k = 0; k < LENGTH; k++) {
+          if (blocks[i, j, k] == null)
+            filled = false;
+        }
+
+        if (filled == true) {
+          // Clear level!
+          didClear = true;
+
+          // Destroy old blocks.
+          for (int k = 0; k < LENGTH; k++) {
+            blocks[i, j, k].Destroy();
+            blocks[i, j, k] = null;
+          }
+
+          // Shift all above blocks downwards.
+          for (int jAbove = j + 1; jAbove < HEIGHT + HEIGHT_EXTRA; jAbove++) {
+            for (int k = 0; k < LENGTH; k++) {
+              if (blocks[i, jAbove, k] != null) {
+                blocks[i, jAbove - 1, k] = blocks[i, jAbove, k];
+                blocks[i, jAbove, k] = null;
+                blocks[i, jAbove - 1, k].MoveToPosition(new IntVector3(i,
+                  jAbove - 1, k));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int k = 0; k < LENGTH; k++) {
+      for (int j = 0; j < HEIGHT + HEIGHT_EXTRA; j++) {
+        bool filled = true;
+        for (int i = 0; i < WIDTH; i++) {
+          if (blocks[i, j, k] == null)
+            filled = false;
+        }
+
+        if (filled == true) {
+          // Clear level!
+          didClear = true;
+
+          // Destroy old blocks.
+          for (int i = 0; i < WIDTH; i++) {
+            blocks[i, j, k].Destroy();
+            blocks[i, j, k] = null;
+          }
+
+          // Shift all above blocks downwards.
+          for (int jAbove = j + 1; jAbove < HEIGHT + HEIGHT_EXTRA; jAbove++) {
+            for (int i = 0; i < WIDTH; i++) {
+              if (blocks[i, jAbove, k] != null) {
+                blocks[i, jAbove - 1, k] = blocks[i, jAbove, k];
+                blocks[i, jAbove, k] = null;
+                blocks[i, jAbove - 1, k].MoveToPosition(new IntVector3(i,
+                  jAbove - 1, k));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return didClear;
   }
 }
